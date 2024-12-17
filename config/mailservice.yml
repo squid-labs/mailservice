@@ -1,0 +1,66 @@
+languages:
+  - code: EN
+    name: English
+
+keychain:
+  app1:
+    algorithm: RS256
+    value: "changeme"
+  app2:
+    algorithm: RS256
+    value: "changeme"
+
+exchanges:
+  app1_system:
+    name: app1.events.system
+    signer: app1
+  app2_model:
+    name: app2.events.model
+    signer: app2
+
+events:
+- name: Email Confirmation
+  key: user.email.confirmation.token
+  exchange: app1_system
+  templates:
+    EN:
+      subject: Registration Confirmation
+      template_path: templates/en/email_confirmation.tpl
+
+- name: Password Reset
+  key: user.password.reset.token
+  exchange: app1_system
+  templates:
+    EN:
+      subject: Password Reset
+      template_path: templates/en/password_reset.tpl
+
+- name: Label Created
+  key: label.created
+  exchange: app2_model
+  expression: |
+    record.key in ["phone", "profile", "document"] &&
+    record.value in ["verified", "rejected"]
+  templates:
+    EN:
+      subject: Account Details Updated
+      template_path: templates/en/label_created.tpl
+
+- name: Label Updated
+  key: label.updated
+  exchange: app2_model
+  expression: |
+    record.key in ["phone", "profile", "document"] &&
+    record.value in ["verified", "rejected"]
+  templates:
+    EN:
+      subject: Account Details Updated
+      template_path: templates/en/label_created.tpl
+
+- name: Session Create
+  key: session.create
+  exchange: app1_system
+  templates:
+    EN:
+      subject: New Login
+      template_path: templates/en/session_create.tpl

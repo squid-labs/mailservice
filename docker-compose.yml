@@ -1,0 +1,40 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"  # RabbitMQ main port
+      - "15672:15672"  # Management UI port
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mailservice:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mailservice
+    environment:
+      MAILSERVICE_ENV: production
+      MAILSERVICE_LOG_LEVEL: debug
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: guest
+      RABBITMQ_PASSWORD: guest
+      SMTP_PASSWORD: your_smtp_password  # Required
+      SMTP_PORT: 25
+      SMTP_HOST: smtp.sendgrid.net
+      SMTP_USER: apikey
+      SENDER_EMAIL: your_sender_email@example.com  # Required
+      SENDER_NAME: noreply
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "8080:8080"  # Adjust this if your mailservice listens on a specific port
+    restart: on-failure
